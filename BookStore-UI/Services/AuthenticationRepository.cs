@@ -4,6 +4,7 @@ using BookStore_UI.Models;
 using BookStore_UI.Providers;
 using BookStore_UI.Static;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace BookStore_UI.Service
          _client = client;
          _localStorage = localStorage;
          _authenticationStateProvider = authenticationStateProvider;
+
       }
 
       public async Task<bool> Login(LoginModel user)
@@ -76,9 +78,15 @@ namespace BookStore_UI.Service
              , Encoding.UTF8, "application/json");
 
          var client = _client.CreateClient();
-         HttpResponseMessage response = await client.SendAsync(request);
+         try
+         {
+            HttpResponseMessage response = await client.SendAsync(request);
+            return response.IsSuccessStatusCode;
+         }
+         catch (Exception ex) { }
 
-         return response.IsSuccessStatusCode;
+         return false;
+         
       }
    }
 }
