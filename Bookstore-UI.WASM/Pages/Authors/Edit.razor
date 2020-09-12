@@ -1,0 +1,76 @@
+﻿@page "/authors/edit/{Id}"
+@attribute [Authorize(Roles ="Adminstrator")]
+@inject IAuthorRepository _repo;
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Edit Author</h3>
+
+@if (isFailed)
+{
+   <ErrorMessage Message="Something went wrong with the operation"></ErrorMessage>
+}
+
+@if (Model == null)
+{
+   <LoadingMessage Message="Loading author for edit"></LoadingMessage>
+}
+else
+{
+   <EditForm Model="Model" OnInvalidSubmit="EditAuthor">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+      <div class="form-group">
+         <label for="firstname">First name</label>
+         <InputText @bind-Value="Model.Firstname" class="form-control" id="firstname" />
+      </div>
+      <div class="form-group">
+         <label for="lastname">Last name</label>
+         <InputText @bind-Value="Model.Lastname" class="form-control" id="lastname" />
+      </div>
+      <div class="form-group">
+         <label for="bio">Biography</label>
+         <InputTextArea @bind-Value="Model.Bio" class="form-control" id="bio" />
+      </div>
+      <button @onclick="EditAuthor" class="btn btn-primary" type="submit">
+         <span class="oi oi-pencil"></span>
+         Submit changes
+      </button>
+      <button @onclick="BackToList" class="btn btn-outline-secondary">
+         <span class="oi oi-media-skip-backward"></span>
+         Back to list
+      </button>
+   </EditForm>
+}
+
+
+@code {
+   [Parameter]
+   public string Id { get; set; }
+
+   private Author Model = new Author();
+   private bool isFailed = false;
+
+   protected override async Task OnInitializedAsync()
+   {
+      int id = int.Parse(Id);
+      Model = await _repo.Get(Endpoints.AuthorsEndpoint, id);
+   }
+
+   private void BackToList()
+   {
+      _navManager.NavigateTo("/authors/");
+   }
+
+   private async Task EditAuthor()
+   {
+      bool isSuccess = await _repo.Update(Endpoints.AuthorsEndpoint, Model, Model.Id);
+      if (isSuccess)
+      {
+         BackToList();
+      }
+      else
+      {
+         isFailed = true;
+      }
+   }
+}

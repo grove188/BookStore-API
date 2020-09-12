@@ -1,0 +1,71 @@
+﻿@page "/authors/"
+
+@inject BookStore_UI.Contracts.IAuthorRepository _repo
+   <h3 class="card-title">Index</h3>
+   <br />
+   <hr />
+   <br />
+   @if (Models == null)
+   {
+      <LoadingMessage Message="Loading authors..."></LoadingMessage>
+   }
+   else
+   {
+<AuthorizeView Roles="Administrator">
+   <a href="/authors/create" class="btn btn-primary">
+      <span class="oi oi-plus"></span>
+      Create new author
+   </a>
+</AuthorizeView>
+
+      @if (Models.Count < 1)
+      {
+         <LoadingMessage Message="There are no authors in the data store.  Click 'Create Author' to begin"></LoadingMessage>
+      }
+      else
+      {
+         <table class="table table-responsive">
+            <thead>
+               <tr>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Actions</th>
+               </tr>
+            </thead>
+            <tbody>
+               @foreach (var author in Models)
+               {
+                  <tr>
+                     <td>@author.Firstname</td>
+                     <td>@author.Lastname</td>
+                     <td>
+                        <a href="/authors/view/@author.Id" class="btn btn-primary">
+                           <span class="oi oi-book"></span>
+                        </a>
+                        <AuthorizeView Roles="Administrator">
+                           <a href="/authors/edit/@author.Id" class="btn btn-warning">
+                              <span class="oi oi-pencil"></span>
+                           </a>
+                           <a href="/authors/delete/@author.Id" class="btn btn-danger">
+                              <span class="oi oi-delete"></span>
+                           </a>
+                        </AuthorizeView>
+                     </td>
+                  </tr>
+               }
+            </tbody>
+         </table>
+      }
+
+
+   }
+
+
+   @code {
+      private IList<BookStore_UI.Models.Author> Models;
+
+      protected async override Task OnInitializedAsync()
+      {
+         Models = await _repo.Get(BookStore_UI.Static.Endpoints.AuthorsEndpoint);
+      }
+   }
