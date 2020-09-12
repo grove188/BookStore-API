@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BookStore_UI.WASM.Contracts
+namespace BookStore_UI.Contracts
 {
    public interface IBaseRepository<T> where T : class
    {
